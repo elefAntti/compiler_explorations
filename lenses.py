@@ -3,7 +3,17 @@ from functools import partial
 #Approximate profunctor lenses in python.
 #The types are really sloppy, thanks to pythons type system
 
-#Profunctor Function
+
+# Emulating the either type....
+class Left():
+	def __init__(self, value):
+		self.value = value
+
+class Right():
+	def __init__(self, value):
+		self.value = value
+
+#Profunctor Function (both Cartesian & Cocartesian)
 class Func:
 	def __init__(self, fcn):
 		self.run = fcn
@@ -11,6 +21,9 @@ class Func:
 		return Func(lambda x: g(self.run(f(x))))
 	def first(self):
 		return Func(lambda pair: (self.run(pair[0]), pair[1]))
+	def left(self):
+		return Func(lambda value: Left(self.run(value.value)) if type(value) is Left else value)
+
 #Profunctor Forget
 class Forget:
 	def __init__(self, fcn = lambda x:x):
@@ -19,6 +32,9 @@ class Forget:
 		return Forget(lambda x: self.run(f(x)))
 	def first(self):
 		return Forget(lambda pair: self.run(pair[0]))
+
+## Lenses
+############################################################
 
 def FieldLense(fieldname, pfunc):
 	return pfunc.first().dimap(lambda state: (state[fieldname], state), lambda pair: { **pair[1], fieldname: pair[0] })
@@ -91,3 +107,46 @@ print(new_state)
 # After:
 # {'substate': {'counter': 11}}
 # {'substate': {'counter': 12}}
+
+## Prisms
+############################################################
+
+def try_parse(constr, value):
+	try:
+		return Left(constr(value))
+	except ValueError:
+		return Right(value)
+
+#parser prism between str and float
+def float_prism(pfunc):
+	return pfunc.left().dimap(partial(try_parse, float), lambda value: str(value.value) )
+
+## Demo
+pfunc_double = Func(lambda x: x * 2.0)
+
+double_str = float_prism(pfunc_double)
+
+print("1.2 doubled: {}".format(double_str.run("1.2")))
+print("kissa doubled: {}".format(double_str.run("kissa")))
+
+#Lenses compose with prisms
+str_counter = compose(counter_lense, float_prism)
+
+state = {"counter": 3.14}
+
+new_state = str_counter(double_str).run(state)
+
+print("Initial:")
+print(state)
+print("After:")
+print(new_state)
+
+
+## Prints the following 
+
+# 1.2 doubled: 2.4
+# kissa doubled: kissa
+# Initial:
+# {'counter': 3.14}
+# After:
+# {'counter': '6.28'}
