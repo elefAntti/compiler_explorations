@@ -32,6 +32,9 @@ def Setter(value):
 def Getter():
 	return Forget()
 
+def compose(f,g):
+	return lambda x: f(g(x))
+
 #Begin demo:
 
 state = {"counter":0}
@@ -68,6 +71,10 @@ add_counter = substate_lense(counter_lense(pfunc_add))
 new_state = add_counter.run(state)
 print(new_state)
 
+combined_lense = compose(substate_lense, counter_lense)
+
+new_state = combined_lense(pfunc_add).run(new_state)
+print(new_state)
 
 
 ## Prints the following
@@ -83,3 +90,4 @@ print(new_state)
 # {'substate': {'counter': 10}}
 # After:
 # {'substate': {'counter': 11}}
+# {'substate': {'counter': 12}}
