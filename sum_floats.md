@@ -38,7 +38,7 @@ float batched_sum(float* array, int len)
 float fast_sum(float* array, int len)
 {
   int unbatched = len % BATCH_SIZE;
-  return sum(array, unbatched) + batched_sum(&array[unbatched], len);
+  return sum(array, unbatched) + batched_sum(&array[unbatched], len - unbatched);
 }
 ~~~
 
