@@ -60,7 +60,7 @@ were calculated and the average running time was recorded. One of the runs is wi
 
 In the unoptimized case the gain is modest 21%, but with the optimization turned on, the batched version is 63% faster (takes only 37% of the time). The optimized version is able to benefit from the SIMD vectorization.
 
-This is what Clang 9.0 (On Compiler Explorer) makes of the two loops in batched_sum:
+This is what Clang 9.0 (on Compiler Explorer) makes of the two loops in batched_sum:
 ~~~
 .LBB2_10:                               # =>This Inner Loop Header: Depth=1
         movups  xmm2, xmmword ptr [rcx + 4*rdx]
@@ -69,3 +69,20 @@ This is what Clang 9.0 (On Compiler Explorer) makes of the two loops in batched_
         cmp     rdx, rax
         jl      .LBB2_10
 ~~~
+
+It does also optimize the vanilla version, unrolling the loop like this:
+~~~
+.LBB0_9:                                # =>This Inner Loop Header: Depth=1
+        addss   xmm0, dword ptr [rdi + 4*rcx]
+        addss   xmm0, dword ptr [rdi + 4*rcx + 4]
+        addss   xmm0, dword ptr [rdi + 4*rcx + 8]
+        addss   xmm0, dword ptr [rdi + 4*rcx + 12]
+        addss   xmm0, dword ptr [rdi + 4*rcx + 16]
+        addss   xmm0, dword ptr [rdi + 4*rcx + 20]
+        addss   xmm0, dword ptr [rdi + 4*rcx + 24]
+        addss   xmm0, dword ptr [rdi + 4*rcx + 28]
+        add     rcx, 8
+        cmp     rdx, rcx
+        jne     .LBB0_9
+~~~
+You notice that the generated code is still repeatedly loading a float at a time from memory and that it adds those floats one at a time to the xmm0 register. In comparison the batched code can load a whole xmm2 registers worth and then use packed add to add the values in parallel. 
