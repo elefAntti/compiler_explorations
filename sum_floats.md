@@ -63,10 +63,9 @@ In the unoptimized case the gain is modest 21%, but with the optimization turned
 This is what Clang 9.0 (On Compiler Explorer) makes of the two loops in batched_sum:
 ~~~
 .LBB2_10:                               # =>This Inner Loop Header: Depth=1
-        movups  xmm2, xmmword ptr [rax + 4*rdx]
-        shufps  xmm2, xmm2, 27          # xmm2 = xmm2[3,2,1,0]
+        movups  xmm2, xmmword ptr [rcx + 4*rdx]
         addps   xmm1, xmm2
         add     rdx, 4
-        cmp     rdx, rcx
+        cmp     rdx, rax
         jl      .LBB2_10
 ~~~
