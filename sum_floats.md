@@ -42,7 +42,8 @@ float fast_sum(float* array, int len)
 }
 ~~~
 
-But how can this be faster? It doesn't make sense.
+"But how can this be faster? It doesn't make sense."
+
 There are two effects at play here: 
   1) in the first code, the result of each summation operation depends on the previous one.
      A modern processor is able to execute multiple operations at a time, if the following operation doesn't depend on the result of a previous one
@@ -56,3 +57,16 @@ were calculated and the average running time was recorded. One of the runs is wi
 
 ![Results with O0](O0.png)
 ![Results with O3](O3.png)
+
+In the unoptimized case the gain is modest 21%, but with the optimization turned on, the batched version is 63% faster (takes only 37% of the time). The optimized version is able to benefit from the SIMD vectorization.
+
+This is what Clang 9.0 (On Compiler Explorer) makes of the two loops in batched_sum:
+~~~
+.LBB2_10:                               # =>This Inner Loop Header: Depth=1
+        movups  xmm2, xmmword ptr [rax + 4*rdx]
+        shufps  xmm2, xmm2, 27          # xmm2 = xmm2[3,2,1,0]
+        addps   xmm1, xmm2
+        add     rdx, 4
+        cmp     rdx, rcx
+        jl      .LBB2_10
+~~~
