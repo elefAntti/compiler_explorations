@@ -93,3 +93,44 @@ But what about the other commutative monoids?
 I am so glad you asked. For the rest of you, monoid is the set of some elements (for example floats) together with a binary operation (such as addition), that allows regrouping of computation such that (a + b) + c = a + (b + c) and a zero element, such that a + 0 = a and 0 + a = a. When the monoid is commutative it means that a + b = b + a. These properties allow us to regroup the computations using multiple accumulators instead of one.
 
 This technique can be generalized to any commutative monoid, but they won't neccessarily receive the same speed benefits. Not all of the operations can be vectorized and if the monoid operation is heavy enough, the next one would not fit in the processor pipeline. However, many common monoids could receive some boost, such as floats with minimum as the monoid addition and infinity as the zero value. Or integers, with 0 as the monoid zero and bitwise-or as the monoid addition. Lets try it.
+
+~~~
+#define MTYPE float
+#define MPLUS(X, Y) fmin((X), (Y))
+#define MZERO INFINITY
+
+float fold(float* array, int len)
+{
+  MTYPE accu = MZERO;
+  for(int i = 0; i < len; ++i)
+  {
+    accu = MPLUS(accu, array[i]);
+  }
+  return accu;
+}
+
+float batched_fold(float* array, int len)
+{
+  MTYPE accu[BATCH_SIZE] = {};
+
+  for(int i = 0; i < BATCH_SIZE; ++i)
+  {
+    accu[i] = MZERO;
+  }
+
+  for(int i = 0; i < len; i += BATCH_SIZE)
+  {
+    for(int j = 0; j < BATCH_SIZE; ++j)
+    {
+      accu[j] = MPLUS(accu[j], array[i + j]);
+    }
+  }
+  return fold(accu, BATCH_SIZE);
+}
+
+float fast_fold(float* array, int len)
+{
+  int unbatched = len % BATCH_SIZE;
+  return MPLUS(fold(array, unbatched), batched_fold(&array[unbatched], len - unbatched));
+}
+~~~
