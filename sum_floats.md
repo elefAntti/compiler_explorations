@@ -86,3 +86,10 @@ It does also optimize the vanilla version, unrolling the loop like this:
         jne     .LBB0_9
 ~~~
 You notice that the generated code is still repeatedly loading a float at a time from memory and that it adds those floats one at a time to the xmm0 register. In comparison the batched code can load a whole xmm2 registers worth and then use packed add to add the values in parallel. 
+
+
+But what about the other commutative monoids?
+----------------------------------------------
+I am so glad you asked. For the rest of you, monoid is the set of some elements (for example floats) together with a binary operation (such as addition), that allows regrouping of computation such that (a + b) + c = a + (b + c) and a zero element, such that a + 0 = a and 0 + a = a. When the monoid is commutative it means that a + b = b + a. These properties allow us to regroup the computations using multiple accumulators instead of one.
+
+This technique can be generalized to any commutative monoid, but they won't neccessarily receive the same speed benefits. Not all of the operations can be vectorized and if the monoid operation is heavy enough, the next one would not fit in the processor pipeline. However, many common monoids could receive some boost, such as floats with minimum as the monoid addition and infinity as the zero value. Or integers, with 0 as the monoid zero and bitwise-or as the monoid addition. Lets try it.
