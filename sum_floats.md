@@ -99,7 +99,7 @@ This technique can be generalized to any commutative monoid, but they won't necc
 #define MPLUS(X, Y) fmin((X), (Y))
 #define MZERO INFINITY
 
-float fold(MTYPE* array, int len)
+MTYPE fold(MTYPE* array, int len)
 {
   MTYPE accu = MZERO;
   for(int i = 0; i < len; ++i)
@@ -109,7 +109,7 @@ float fold(MTYPE* array, int len)
   return accu;
 }
 
-float batched_fold(MTYPE* array, int len)
+MTYPE batched_fold(MTYPE* array, int len)
 {
   MTYPE accu[BATCH_SIZE] = {};
 
@@ -128,9 +128,11 @@ float batched_fold(MTYPE* array, int len)
   return fold(accu, BATCH_SIZE);
 }
 
-float fast_fold(MTYPE* array, int len)
+MTYPE fast_fold(MTYPE* array, int len)
 {
   int unbatched = len % BATCH_SIZE;
   return MPLUS(fold(array, unbatched), batched_fold(&array[unbatched], len - unbatched));
 }
 ~~~
+
+![fmin as the monoid plus](fmin.png)
