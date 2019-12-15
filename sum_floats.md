@@ -135,4 +135,13 @@ MTYPE fast_fold(MTYPE* array, int len)
 }
 ~~~
 
-![fmin as the monoid plus](images/fmin.png)
+While testing this code I found something odd: It seemed that the code that the compiler generated for the bitwise-or monoid was actually faster than my batched code. By inspecting the assembler generated in Compiler Explorer, I was able to determine that it is infact already using a similar optimization for the vanilla version, only the compiler is using a batch size of 32 for some reason. By using the size 32 I was able to get my code to perform as well as the vanilla version. 
+
+Investigating a bit, it seems that this bigger batch size may actually speed up the other cases as well, which is surprising because my previous tests with batch sizes 8 and 16 showed little benefit.
+
+![bitwise or as the monoid plus](images/bitor.png)
+![fmin as the monoid plus](images/fmin2.png)
+![batch size 32 for regular sum](images/sum32.png)
+
+Perhaps the compiler is a bit squeamish to rearrange floating point calculations, as those are not actually a monoid in the sense that different computation order may produce different results because of floating point rounding errors. 
+
