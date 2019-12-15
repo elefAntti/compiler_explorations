@@ -145,3 +145,14 @@ Investigating a bit, it seems that this bigger batch size may actually speed up 
 
 Perhaps the compiler is a bit squeamish to rearrange floating point calculations, as those are not actually a monoid in the sense that different computation order may produce different results because of floating point rounding errors. 
 
+Can't we get the compiler to be chill with this?
+------------------------------------------------
+By turning on -Ofast optimization, compiler can actually do a lot more. It allows the computations to be rearranged also in the floating point case and it turns out that the simple vanilla version of the sum code is faster than the batched version.
+
+![ofast optimized](images/Ofast.png)
+
+So you may instead want to write your sum function in the simplest way (so the compiler can see what you are trying to do), put it in a separate compilation unit and compile that with Ofast.
+
+One benefit of doing the optimization manually is that being in the same compilation unit may allow it to inline better. Also, you get better control over exactly how your floating point calculation is done. I suppose Ofast may surprise you in other ways as well.
+
+In the case of 'fmin' monoid, it didn't help to use the Ofast flag, so sometimes you may have to optimize by hand anyway.
