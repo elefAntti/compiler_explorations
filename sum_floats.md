@@ -55,8 +55,8 @@ I tested the functions on my old 2012 Mac Mini. The above code was compiled usin
 The test generated exponentially larger input arrays filled with random floats. For each size 100 repetitions of a function
 were calculated and the average running time was recorded. One of the runs is with O3 optimizations and the other with O0.
 
-![Results with O0](O0.png)
-![Results with O3](O3.png)
+![Results with O0](images/O0.png)
+![Results with O3](images/O3.png)
 
 In the unoptimized case the gain is modest 21%, but with the optimization turned on, the batched version is 63% faster (takes only 37% of the time). The optimized version is able to benefit from the SIMD vectorization.
 
@@ -135,4 +135,4 @@ MTYPE fast_fold(MTYPE* array, int len)
 }
 ~~~
 
-![fmin as the monoid plus](fmin.png)
+![fmin as the monoid plus](images/fmin.png)
