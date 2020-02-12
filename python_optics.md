@@ -129,7 +129,7 @@ print(new_state)
 
 So we can recover getter and setter functions from the profunctor optics. The profunctor lense can also be made from getter & setter pair: they are isomorphic.
 
-A brief demonstration about how you can compose two lenses or map the profunctor first trouh one and then the other
+A brief demonstration about how you can compose two lenses or map the profunctor first trough one and then the other
 
 ~~~
 
