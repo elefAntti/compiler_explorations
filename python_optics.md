@@ -1,6 +1,6 @@
 Profuntor Optics in Python
 ================================
-Profunctor optics are a pattern in functional programming that generalize a field access (Lense) or cast (Prism) in Object oriented languages.
+Profunctor optics are a pattern in functional programming that generalize a field access (Lense) or cast (Prism) in Object oriented languages. Lense and Prism are duals: One focuses on a part and the other on an alternative.
 Thus Lense is a bit like getter/setter pair and a Prism is like downcast/upcast pair. There are also other possible optics.
 The cool thing about optics is that they are just functions and thus they compose: You can combine optics and you get optics.
 
@@ -48,3 +48,97 @@ Let's first think about a simple type of optics: Adapter. There are two function
 
 Lenses
 -----------------
+The Lense divides some object into a focused part and the rest. It then apples the profunctor to the focus and recombines it with the rest. For this the profunctor has to be cartesian: Having a profunctor from a to c we can apply the profunctor to (a, b) to get to (c, b) where those parentheses denote tuples. This is done by the member function "first":
+
+~~~~
+class Func:
+	def __init__(self, fcn):
+		self.run = fcn
+	def dimap(self, f, g):
+		return Func(lambda x: g(self.run(f(x))))
+	def first(self):
+		return Func(lambda pair: (self.run(pair[0]), pair[1]))
+		
+class Forget:
+	def __init__(self, fcn):
+		self.run = fcn
+	def dimap(self, f, g):
+		return Forget(lambda x: self.run(f(x)))
+	def first(self):
+		return Forget(lambda pair: self.run(pair[0]))
+~~~
+
+Now a lense focusing on a certain field of a dict could be written as follows:
+
+~~~
+def FieldLense(fieldname, pfunc):
+	return pfunc.first().dimap(lambda state: (state[fieldname], state), lambda pair: { **pair[1], fieldname: pair[0] })
+~~~~
+
+So first we convert the profunctor to a profunctor acting on a (focus, the rest) pair, then we dimap functions of which first extracts the focus and the second substitutes it back. We now have a function that takes a profunctor and returns a profunctor. Note that I cheat and "the rest" is just the entire original object.
+
+Lets define a few helpers and then do a demo
+
+~~~
+from functools import partial
+
+def Field(fieldname):
+	return partial(FieldLense, fieldname)
+	
+pfunc_add = Func(lambda x: x + 1)
+counter_lense = Field("counter")
+
+add_counter = counter_lense(pfunc_add)
+
+
+state = {"counter":0}
+
+print("Initial:")
+print(state)
+print("After:")
+new_state = add_counter.run(state)
+print(new_state)
+new_state = add_counter.run(new_state)
+print(new_state)
+~~~
+
+~~~
+def Setter(value):
+	return Func(lambda x: value)
+
+def Getter():
+	return Forget(lambda x: x)
+
+
+get_counter = counter_lense(Getter())
+print("Counter value: {}".format(get_counter.run(new_state)))
+
+set_counter_to_5 = counter_lense(Setter(5))
+new_state = set_counter_to_5.run(new_state)
+print(new_state)
+~~~
+
+~~~
+
+def compose(f,g):
+	return lambda x: f(g(x))
+	
+state = {"substate":{"counter": 10}}
+
+substate_lense = Field("substate")
+
+print("Initial:")
+print(state)
+print("After:")
+add_counter = substate_lense(counter_lense(pfunc_add))
+new_state = add_counter.run(state)
+print(new_state)
+
+combined_lense = compose(substate_lense, counter_lense)
+
+new_state = combined_lense(pfunc_add).run(new_state)
+print(new_state)
+~~~
+
+
+
