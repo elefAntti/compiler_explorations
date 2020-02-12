@@ -50,7 +50,7 @@ Lenses
 -----------------
 The Lense divides some object into a focused part and the rest. It then apples the profunctor to the focus and recombines it with the rest. For this the profunctor has to be cartesian: Having a profunctor from a to c we can apply the profunctor to (a, b) to get to (c, b) where those parentheses denote tuples. This is done by the member function "first":
 
-~~~~
+~~~
 class Func:
 	def __init__(self, fcn):
 		self.run = fcn
@@ -73,7 +73,7 @@ Now a lense focusing on a certain field of a dict could be written as follows:
 ~~~
 def FieldLense(fieldname, pfunc):
 	return pfunc.first().dimap(lambda state: (state[fieldname], state), lambda pair: { **pair[1], fieldname: pair[0] })
-~~~~
+~~~
 
 So first we convert the profunctor to a profunctor acting on a (focus, the rest) pair, then we dimap functions of which first extracts the focus and the second substitutes it back. We now have a function that takes a profunctor and returns a profunctor. Note that I cheat and "the rest" is just the entire original object.
 
