@@ -68,7 +68,7 @@ class Forget:
 		return Forget(lambda pair: self.run(pair[0]))
 ~~~
 
-Now a lense focusing on a certain field of a dict could be written as follows:
+There is a similar "second" function, but we don't need it here. Now a lense focusing on a certain field of a dict could be written as follows:
 
 ~~~
 def FieldLense(fieldname, pfunc):
@@ -156,4 +156,49 @@ print(new_state)
 ~~~
 
 
+Prisms
+----------
+For the Lenses we used cartesian profunctors so we could make them operate on a tuple. Because Prisms are dual to Lenses, they use cocartesian profunctors: a profunctor that can be lifted over an "either" type. In python, unfortunately, any varible can contain any type and there is no separate "either". But we can emulate it by making these two types corresponding to the two constructors of an "either"
+
+~~~
+# Emulating the either type....
+class Left():
+	def __init__(self, value):
+		self.value = value
+
+class Right():
+	def __init__(self, value):
+		self.value = value
+~~~
+
+Luckily Func is also a cocartesian profunctor:
+
+~~~
+#Profunctor Function (both Cartesian & Cocartesian)
+class Func:
+	def __init__(self, fcn):
+		self.run = fcn
+	def dimap(self, f, g):
+		return Func(lambda x: g(self.run(f(x))))
+	def first(self):
+		return Func(lambda pair: (self.run(pair[0]), pair[1]))
+	def left(self):
+		return Func(lambda value: Left(self.run(value.value)) if type(value) is Left else value)
+~~~
+
+the "left" function maps the profunctor to a new profunctor that lets a "Right" value through unmodified, but operates on the "Left" value. There would also be a "right" function, but we don't need it now.
+
+Many parsers can be seen as prisms and the example is a prism that parses floats and converts them back to strings. It focuses on the alternative of the string being a representation of a float.
+
+~~~
+def try_parse(value):
+	try:
+		return Left(float(value))
+	except ValueError:
+		return Right(value)
+
+#parser prism between str and float
+def float_prism(pfunc):
+	return pfunc.left().dimap(try_parse, lambda value: str(value.value) )
+~~~
 
