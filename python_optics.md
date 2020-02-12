@@ -2,7 +2,7 @@ Profuntor Optics in Python
 ================================
 Profunctor optics are a pattern in functional programming that generalize a field access (Lense) or cast (Prism) in Object oriented languages.
 Thus Lense is a bit like getter/setter pair and a Prism is like downcast/upcast pair. There are also other possible optics.
-THe cool thing about optics is that they compose: You can combine optics and you get optics.
+The cool thing about optics is that they are just functions and thus they compose: You can combine optics and you get optics.
 
 Some time ago I read [Profunctor Optics: Modular Data Accessors](https://arxiv.org/abs/1703.10857) wich does good job of explaining the profunctor optics.
 But I was curious if that pattern could be impleented in some other language that I know better, like Python.
