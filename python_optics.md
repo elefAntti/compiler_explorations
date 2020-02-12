@@ -41,3 +41,10 @@ class Forget:
 
 The Forget profunctor is a lot like the Func profunctor above, but it's dimap just drops the g. Thus wen you run a Forget profunctor that was formed by dimapping another one,
 it will return you the same type of value as the original profunctors 'run' would.
+
+Optics
+----------------
+Let's first think about a simple type of optics: Adapter. There are two functions in an adapter, f and g. Those functions form an isomorphism: f(g(x)) = x and g(f(x)) = x. This optic can change the shape of data, for example ((a, b), c) to (a, b, c) before applying a function to get (h, i, j) and then change it back to ((h, i), j). It would map a profunctor simply by dimaping the g and f functions to it. One interesting optic of this type is changing the base of a vector space.
+
+Lenses
+-----------------
