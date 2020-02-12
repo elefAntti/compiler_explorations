@@ -105,6 +105,10 @@ print(new_state)
 # prints {'counter': 2}
 ~~~
 
+So we have changed a function operating on integers to a function operating on dicts.
+
+To illustrate how this relates to the concept of getter and setter functions (and also to explain what we need the Forget profunctor for) lets try the following:
+
 ~~~
 def Setter(value):
 	return Func(lambda x: value)
@@ -122,6 +126,10 @@ new_state = set_counter_to_5.run(new_state)
 print(new_state)
 #prints {'counter': 5}
 ~~~
+
+So we can recover getter and setter functions from the profunctor optics. The profunctor lense can also be made from getter & setter pair: they are isomorphic.
+
+A brief demonstration about how you can compose two lenses or map the profunctor first trouh one and then the other
 
 ~~~
 
