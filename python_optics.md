@@ -214,3 +214,18 @@ print("1.2 doubled: {}".format(double_str.run("1.2")))
 print("kissa doubled: {}".format(double_str.run("kissa")))
 # prints kissa doubled: kissa
 ~~~
+
+You can also combine lenses with prisms
+
+~~~
+str_counter = compose(counter_lense, float_prism)
+
+state = {"counter": "3.14"}
+
+new_state = str_counter(double_str).run(state)
+
+print(state)
+# prints {'counter': '3.14'}
+print(new_state)
+# prints {'counter': '6.28'}
+~~~
