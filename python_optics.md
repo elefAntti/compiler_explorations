@@ -202,3 +202,15 @@ def float_prism(pfunc):
 	return pfunc.left().dimap(try_parse, lambda value: str(value.value) )
 ~~~
 
+Lets demonstrate this
+
+~~~
+pfunc_double = Func(lambda x: x * 2.0)
+
+double_str = float_prism(pfunc_double)
+
+print("1.2 doubled: {}".format(double_str.run("1.2")))
+# prints 1.2 doubled: 2.4
+print("kissa doubled: {}".format(double_str.run("kissa")))
+# prints kissa doubled: kissa
+~~~
