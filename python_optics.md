@@ -5,7 +5,7 @@ Thus Lense is a bit like getter/setter pair and a Prism is like downcast/upcast 
 The cool thing about optics is that they are just functions and thus they compose: You can combine optics and you get optics.
 
 Some time ago I read [Profunctor Optics: Modular Data Accessors](https://arxiv.org/abs/1703.10857) wich does good job of explaining the profunctor optics.
-But I was curious if that pattern could be impleented in some other language that I know better, like Python.
+But I was curious if that pattern could be implemented in some other language that I know better, like Python.
 
 Pythons type-system makes this interesting, because normally these profunctor optics (and profunctors themselves) would be strongly typed.
 Things will look a bit different with pythons ducktyping. I'm not diving deep into the category theory here either. So to get a more exact
