@@ -1,4 +1,4 @@
-Profuntor Optics in Python
+Profunctor Optics in Python
 ================================
 Profunctor optics are a pattern in functional programming that generalize a field access (Lense) or cast (Prism) in Object oriented languages. Lense and Prism are duals: One focuses on a part and the other on an alternative.
 Thus Lense is a bit like getter/setter pair and a Prism is like downcast/upcast pair. There are also other possible optics.
@@ -93,13 +93,16 @@ add_counter = counter_lense(pfunc_add)
 
 state = {"counter":0}
 
-print("Initial:")
-print(state)
-print("After:")
+print(state) 
+# prints {'counter': 0}
+
 new_state = add_counter.run(state)
 print(new_state)
+# prints {'counter': 1}
+
 new_state = add_counter.run(new_state)
 print(new_state)
+# prints {'counter': 2}
 ~~~
 
 ~~~
@@ -112,10 +115,12 @@ def Getter():
 
 get_counter = counter_lense(Getter())
 print("Counter value: {}".format(get_counter.run(new_state)))
+# prints Counter value: 2
 
 set_counter_to_5 = counter_lense(Setter(5))
 new_state = set_counter_to_5.run(new_state)
 print(new_state)
+#prints {'counter': 5}
 ~~~
 
 ~~~
@@ -127,17 +132,19 @@ state = {"substate":{"counter": 10}}
 
 substate_lense = Field("substate")
 
-print("Initial:")
 print(state)
-print("After:")
+# prints {'substate': {'counter': 10}}
+
 add_counter = substate_lense(counter_lense(pfunc_add))
 new_state = add_counter.run(state)
 print(new_state)
+# prints {'substate': {'counter': 11}}
 
 combined_lense = compose(substate_lense, counter_lense)
 
 new_state = combined_lense(pfunc_add).run(new_state)
 print(new_state)
+# prints {'substate': {'counter': 12}}
 ~~~
 
 
