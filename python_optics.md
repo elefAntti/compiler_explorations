@@ -222,7 +222,7 @@ str_counter = compose(counter_lense, float_prism)
 
 state = {"counter": "3.14"}
 
-new_state = str_counter(double_str).run(state)
+new_state = str_counter(pfunc_double).run(state)
 
 print(state)
 # prints {'counter': '3.14'}
