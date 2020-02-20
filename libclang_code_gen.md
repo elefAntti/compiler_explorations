@@ -51,3 +51,5 @@ const char* toString( ${ e.name } eValue )
 
 % endfor
 ~~~
+Based on:
+http://szelei.me/code-generator/
